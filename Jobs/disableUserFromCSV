@@ -1,0 +1,44 @@
+static void disableUserFromCSV(Args _args)
+{
+
+    #File   //needed for use of Macro #io_read
+    UserInfo            userInfo;
+    CommaTextIo         commaTextIO;
+    FileIOPermission    permission;
+    container           userList;
+    str                 fpath;
+    str 8               userId;
+    ;
+
+    //File consisting of list of users with columns {userid, username, enable}
+    fpath = "D:\\Temp\\Code\\UserList.csv";
+    permission = new FileIOPermission(fpath, #io_read);
+    permission.assert();
+
+    commaTextIO = new commaTextIO(fpath, 'R');
+    commaTextIO.inRecordDelimiter('\n');
+    commaTextIO.inFieldDelimiter(';');
+
+    userList = commaTextIO.read();
+    userList = commaTextIO.read(); //To overwrite the header read.
+    while(userList)
+    {
+        userId = conPeek(userList, 1);
+        
+        while select forUpdate userInfo where userInfo.id == userId
+        {
+            //strReplace() is used to replace the Carriage return with space, so that the validations act properly
+     //Checking if enable is already False, if it is control shouldn't go into the loop.
+            if(userInfo && strReplace(conPeek(userList,3), '\r', '') == "TRUE") 
+            {
+                ttsBegin;
+                userInfo.enable = 0;
+                userInfo.update();
+                ttsCommit;
+                info(strFmt("%1 : User updated", userInfo.name));
+            }
+        }
+        userList = commaTextIO.read();        
+    }
+
+}
