@@ -2,18 +2,16 @@ static void disableUsers(Args _args)
 {
     UserInfo userInfo;
     ;
-    
     //a00008 is the user id which we want to disable.
     while select forUpdate userInfo where userInfo.id == 'a00008'
     {
         if(userInfo)
         {
             ttsBegin;
-            
             userInfo.enable = 0;
-            userInfo.update();
-            
+            userInfo.update();           
             ttsCommit;
         }
     }
+    info("user a00008 is now disabled");
 }
