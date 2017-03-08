@@ -1,0 +1,27 @@
+static void disableListOfUsers(Args _args)
+{
+    UserInfo    userInfo;
+    //list of users to be disabled
+    container   userList = ['a00225', 'a03559', 'a03971']; 
+    int         x, noOfRecords;
+    str 8       userId;
+    ;
+    
+    noOfRecords = conLen(userList);
+    for(x=0; x<noOfRecords; x++)
+    {
+        userId = conPeek(userList, x);
+        while select forUpdate userInfo where userInfo.id == userId
+        {
+            if(userInfo)
+            {
+                ttsBegin;
+                userInfo.enable = 0;
+                userInfo.update();
+                ttsCommit;
+                info(strFmt("%1 : User updated", userInfo.name));
+            }
+        }
+    }
+
+}
